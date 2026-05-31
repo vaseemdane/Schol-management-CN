@@ -1,0 +1,8 @@
+-- This file is intentionally kept minimal.
+-- Database tables are auto-created by SQLAlchemy when the backend starts.
+-- See seed_data.sql for test data.
+
+-- You can manually run seed data after the backend starts:
+-- psql -h localhost -U erp_user -d school_erp -f seed_data.sql
+
+SELECT 'Database ready' AS status;

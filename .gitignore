@@ -1,0 +1,38 @@
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
+*.pyc
+__pycache__/
+
+# Node modules & dependencies
+node_modules/
+.npm
+npm-debug.log*
+
+# Environment files & Secrets (CRITICAL)
+.env
+.env.docker
+.env.local
+.env.*.local
+
+# IDE configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+.dist/
+out/
+.next/
