@@ -11,11 +11,18 @@ node_modules/
 .npm
 npm-debug.log*
 
-# Environment files & Secrets (CRITICAL)
+# Environment files & Secrets (CRITICAL — never commit real .env files)
 .env
 .env.docker
 .env.local
 .env.*.local
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Allow example files (safe to commit)
+!.env.example
+!**/.env.example
 
 # IDE configurations
 .vscode/
@@ -36,3 +43,6 @@ build/
 .dist/
 out/
 .next/
+
+# Python dist
+*.egg-info/
