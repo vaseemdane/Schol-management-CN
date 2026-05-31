@@ -1,0 +1,38 @@
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Alembic (migrations run separately or on startup)
+# alembic/versions/   ← keep this so migrations are available
+
+# Environment files — never bake secrets into image
+.env
+.env.*
+!.env.example
+
+# Dev/build artifacts
+.dist/
+dist/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docker files (not needed inside the container)
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Docs
+README.md
