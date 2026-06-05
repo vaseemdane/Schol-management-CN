@@ -101,7 +101,10 @@ export const feesApi = {
   list: () => api.get('/fees'),
   getByStudent: (studentId) => api.get(`/fees/student/${studentId}`),
   create: (data) => api.post('/fees', data),
+  update: (id, data) => api.put(`/fees/${id}`, data),
   addPayment: (data) => api.post('/fees/payment', data),
+  updatePayment: (id, data) => api.put(`/fees/payment/${id}`, data),
+  deletePayment: (id) => api.delete(`/fees/payment/${id}`),
 }
 
 // Salary
@@ -109,6 +112,7 @@ export const salaryApi = {
   list: () => api.get('/salary'),
   getByTeacher: (teacherId) => api.get(`/salary/teacher/${teacherId}`),
   create: (data) => api.post('/salary', data),
+  update: (id, data) => api.put(`/salary/${id}`, data),
   addPayment: (data) => api.post('/salary/payment', data),
 }
 
@@ -116,6 +120,8 @@ export const salaryApi = {
 export const certificatesApi = {
   list: () => api.get('/certificates'),
   generate: (data) => api.post('/certificates', data),
+  update: (id, data) => api.put(`/certificates/${id}`, data),
+  delete: (id) => api.delete(`/certificates/${id}`),
 }
 
 // Notifications
@@ -132,3 +138,11 @@ export const analyticsApi = {
   financial: (params) => api.get('/analytics/financial', { params }),
   attendanceOverview: (params) => api.get('/analytics/attendance-overview', { params }),
 }
+
+// Promotion
+export const promotionApi = {
+  promote: (data) => api.post('/promotion/promote', data),
+  history: () => api.get('/promotion/history'),
+  historyDetail: (logId) => api.get(`/promotion/history/${logId}`),
+}
+

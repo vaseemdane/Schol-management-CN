@@ -18,6 +18,7 @@ const navItems = [
   { to: "/admin/analytics", icon: BarChart3, label: "Analytics" },
   { to: "/admin/certificates", icon: Award, label: "Certificates" },
   { to: "/admin/notifications", icon: Bell, label: "Notifications" },
+  { to: "/admin/promotion", icon: GraduationCap, label: "Promotion" },
   { to: "/admin/settings", icon: Settings, label: "Settings" },
 ]
 

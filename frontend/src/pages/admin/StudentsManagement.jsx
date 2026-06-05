@@ -10,10 +10,19 @@ import { LoadingPage, EmptyState } from "@/components/ui/loading"
 import { Plus, Search, Edit2, Trash2, Eye, Users } from "lucide-react"
 
 function StudentForm({ initial, classes, onSubmit, onClose, loading }) {
-  const [form, setForm] = useState(initial || {
-    name: "", mobile: "", password: "", roll_number: "",
-    class_id: "", section: "", parent_name: "", parent_mobile: "", address: "",
-    medium: "English",
+  const [form, setForm] = useState(() => {
+    if (initial) {
+      return {
+        ...initial,
+        dob: initial.dob || "",
+      }
+    }
+    return {
+      name: "", mobile: "", password: "", roll_number: "",
+      class_id: "", section: "", parent_name: "", parent_mobile: "", address: "",
+      medium: "English",
+      dob: "",
+    }
   })
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }))
@@ -52,6 +61,9 @@ function StudentForm({ initial, classes, onSubmit, onClose, loading }) {
         </FormField>
         <FormField label="Section *">
           <Input value={form.section} onChange={e => set("section", e.target.value)} placeholder="e.g. A" required />
+        </FormField>
+        <FormField label="Date of Birth *">
+          <Input type="date" value={form.dob} onChange={e => set("dob", e.target.value)} required />
         </FormField>
         <FormField label="Parent Name">
           <Input value={form.parent_name} onChange={e => set("parent_name", e.target.value)} placeholder="Parent/Guardian name" />
@@ -219,6 +231,7 @@ export default function StudentsManagement() {
               ["Class", modalView.class_name],
               ["Section", modalView.section],
               ["Medium", modalView.medium],
+              ["Date of Birth", modalView.dob],
               ["Mobile", modalView.mobile],
               ["Parent Name", modalView.parent_name],
               ["Parent Mobile", modalView.parent_mobile],

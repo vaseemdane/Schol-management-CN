@@ -9,7 +9,7 @@ from app.models.student import Student
 from app.models.teacher import Teacher
 from app.models.class_subject import Class
 from app.schemas.misc import (
-    CertificateCreate, CertificateOut, NotificationCreate, NotificationOut,
+    CertificateCreate, CertificateUpdate, CertificateOut, NotificationCreate, NotificationOut,
     ClassCreate, ClassOut, SubjectCreate, SubjectOut,
 )
 from app.models.class_subject import Class, Subject
@@ -62,6 +62,32 @@ def generate_certificate(data: CertificateCreate, db: Session = Depends(get_db),
         id=cert.id, student_id=cert.student_id, certificate_type=cert.certificate_type,
         issued_date=cert.issued_date, content=cert.content, student_name=student.name,
     )
+
+
+@certificates_router.put("/{certificate_id}", response_model=CertificateOut)
+def update_certificate(certificate_id: int, data: CertificateUpdate, db: Session = Depends(get_db), _=Depends(require_admin)):
+    cert = db.query(Certificate).filter(Certificate.id == certificate_id).first()
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    cert.content = data.content
+    db.commit()
+    db.refresh(cert)
+    student = db.query(Student).filter(Student.id == cert.student_id).first()
+    return CertificateOut(
+        id=cert.id, student_id=cert.student_id, certificate_type=cert.certificate_type,
+        issued_date=cert.issued_date, content=cert.content,
+        student_name=student.name if student else None,
+    )
+
+
+@certificates_router.delete("/{certificate_id}")
+def delete_certificate(certificate_id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
+    cert = db.query(Certificate).filter(Certificate.id == certificate_id).first()
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    db.delete(cert)
+    db.commit()
+    return {"message": "Certificate deleted successfully"}
 
 
 # ─── NOTIFICATIONS ─────────────────────────────────────────────────────────────

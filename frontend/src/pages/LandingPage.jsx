@@ -102,27 +102,12 @@ export default function LandingPage() {
             Browse Panels
           </a>
         </div>
-
-        <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 text-sm text-muted-foreground max-w-4xl mx-auto">
-          {["500+ Students", "50+ Teachers", "Real-time Analytics", "Secure & Fast"].map((item) => (
-            <li key={item} className="inline-flex items-center gap-2 justify-center rounded-full border border-border/20 bg-card/70 px-4 py-2">
-              <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-              {item}
-            </li>
-          ))}
-        </ul>
       </section>
     </main>
 
       {/* Role Cards */}
-      <section id="roles" className="relative z-10 px-6 md:px-12 pb-20" aria-labelledby="roles-heading">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-10 text-center max-w-3xl mx-auto">
-            <p className="text-sm uppercase tracking-[0.28em] text-primary/80 mb-3">Select your workspace</p>
-            <h2 id="roles-heading" className="text-3xl md:text-4xl font-bold text-foreground">Role-driven access for every school user</h2>
-            <p className="text-muted-foreground mt-3">Fast login flows for administrators, teachers, and students with visually distinctive dashboards and secure controls.</p>
-          </div>
-
+      <section id="roles" className="relative z-10 px-6 md:px-12 pb-20" aria-label="Roles">
+        <div className="max-w-6xl mx-auto pt-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {roles.map((role, index) => (
               <RoleCard key={role.id} role={role} delay={index * 100} onLogin={() => navigate(role.path)} />

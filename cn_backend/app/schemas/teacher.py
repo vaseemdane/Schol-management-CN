@@ -21,6 +21,7 @@ class TeacherUpdate(BaseModel):
     monthly_salary: Optional[float] = None
     assigned_classes: Optional[List[int]] = None
     assigned_subjects: Optional[List[int]] = None
+    password: Optional[str] = None
 
 
 class TeacherOut(BaseModel):

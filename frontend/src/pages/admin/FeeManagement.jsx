@@ -9,19 +9,32 @@ import { Modal } from "@/components/ui/modal"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { LoadingPage, EmptyState } from "@/components/ui/loading"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import { Plus, CreditCard, TrendingUp, AlertCircle, CheckCircle } from "lucide-react"
+import { Plus, CreditCard, TrendingUp, AlertCircle, CheckCircle, Edit2, Trash2 } from "lucide-react"
 
 export default function FeeManagement() {
   const qc = useQueryClient()
   const [modalFee, setModalFee] = useState(false)
   const [modalPay, setModalPay] = useState(null)
+  const [modalEditPay, setModalEditPay] = useState(null)
+  const [modalEditFee, setModalEditFee] = useState(null)
   const [selectedFee, setSelectedFee] = useState(null)
 
   const { data: fees = [], isLoading } = useQuery({ queryKey: ["fees"], queryFn: () => feesApi.list().then(r => r.data) })
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => studentsApi.list().then(r => r.data) })
 
   const createFee = useMutation({ mutationFn: feesApi.create, onSuccess: () => { qc.invalidateQueries(["fees"]); setModalFee(false) } })
+  const updateFee = useMutation({ mutationFn: ({ id, data }) => feesApi.update(id, data), onSuccess: () => { qc.invalidateQueries(["fees"]); setModalEditFee(null) } })
   const addPayment = useMutation({ mutationFn: feesApi.addPayment, onSuccess: () => { qc.invalidateQueries(["fees"]); setModalPay(null) } })
+  const updatePayment = useMutation({ mutationFn: ({ id, data }) => feesApi.updatePayment(id, data), onSuccess: () => { qc.invalidateQueries(["fees"]); setModalEditPay(null) } })
+  const deletePayment = useMutation({ mutationFn: feesApi.deletePayment, onSuccess: () => qc.invalidateQueries(["fees"]) })
+
+  const currentSelectedFee = selectedFee ? fees.find(f => f.id === selectedFee.id) : null
+
+  const handleDeletePayment = (paymentId) => {
+    if (confirm("Are you sure you want to delete this payment record?")) {
+      deletePayment.mutate(paymentId)
+    }
+  }
 
   const totalFees = fees.reduce((s, f) => s + f.total_amount, 0)
   const totalPaid = fees.reduce((s, f) => s + f.paid_amount, 0)
@@ -94,6 +107,7 @@ export default function FeeManagement() {
               </TableCell>
               <TableCell>
                 <div className="flex gap-2">
+                  <button onClick={() => setModalEditFee(f)} className="btn-icon p-1.5 hover:bg-secondary rounded" title="Edit Fee Record"><Edit2 className="w-4 h-4" /></button>
                   <button onClick={() => { setSelectedFee(f); setModalPay(f) }} className="btn btn-secondary btn-sm">
                     <Plus className="w-3 h-3" /> Payment
                   </button>
@@ -106,21 +120,27 @@ export default function FeeManagement() {
       </Table>
 
       {/* Payment history */}
-      {selectedFee && !modalPay && (
+      {currentSelectedFee && !modalPay && (
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle>Payment History — {selectedFee.student_name}</CardTitle>
+            <CardTitle>Payment History — {currentSelectedFee.student_name}</CardTitle>
           </CardHeader>
           <CardContent>
-            {selectedFee.payments?.length === 0 && <p className="text-muted-foreground text-sm">No payments yet.</p>}
+            {currentSelectedFee.payments?.length === 0 && <p className="text-muted-foreground text-sm">No payments yet.</p>}
             <div className="space-y-2">
-              {selectedFee.payments?.map(p => (
+              {currentSelectedFee.payments?.map(p => (
                 <div key={p.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/40">
                   <div>
                     <p className="text-sm font-medium text-foreground">{formatCurrency(p.amount)}</p>
-                    <p className="text-xs text-muted-foreground">Receipt: {p.receipt_number}</p>
+                    <p className="text-xs text-muted-foreground">Receipt: {p.receipt_number} {p.remarks && `• Remarks: ${p.remarks}`}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">{formatDate(p.payment_date)}</p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-xs text-muted-foreground">{formatDate(p.payment_date)}</p>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => setModalEditPay(p)} className="btn-icon p-1 hover:bg-secondary rounded" title="Edit Payment"><Edit2 className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" /></button>
+                      <button onClick={() => handleDeletePayment(p.id)} className="btn-icon p-1 hover:bg-red-500/10 rounded" title="Delete Payment"><Trash2 className="w-3.5 h-3.5 text-red-400 hover:text-red-300" /></button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -181,6 +201,90 @@ export default function FeeManagement() {
               </div>
             </form>
           </div>
+        )}
+      </Modal>
+
+      {/* Edit payment modal */}
+      <Modal isOpen={!!modalEditPay} onClose={() => setModalEditPay(null)} title={`Edit Payment — Receipt: ${modalEditPay?.receipt_number}`}>
+        {modalEditPay && (
+          <form onSubmit={e => {
+            e.preventDefault()
+            const fd = new FormData(e.target)
+            updatePayment.mutate({
+              id: modalEditPay.id,
+              data: {
+                amount: +fd.get("amount"),
+                remarks: fd.get("remarks")
+              }
+            })
+          }} className="space-y-4">
+            <FormField label="Payment Amount (₹) *">
+              <Input
+                name="amount"
+                type="number"
+                defaultValue={modalEditPay.amount}
+                max={currentSelectedFee ? (currentSelectedFee.remaining_amount + modalEditPay.amount) : undefined}
+                placeholder="Amount"
+                required
+              />
+            </FormField>
+            <FormField label="Remarks">
+              <Input name="remarks" defaultValue={modalEditPay.remarks || ""} placeholder="Remarks" />
+            </FormField>
+            <div className="flex gap-3">
+              <Button type="submit" disabled={updatePayment.isPending} className="flex-1">
+                {updatePayment.isPending ? "Saving..." : "Save Changes"}
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => setModalEditPay(null)}>Cancel</Button>
+            </div>
+          </form>
+        )}
+      </Modal>
+
+      {/* Edit fee record modal */}
+      <Modal isOpen={!!modalEditFee} onClose={() => setModalEditFee(null)} title={`Edit Fee — ${modalEditFee?.student_name}`}>
+        {modalEditFee && (
+          <form onSubmit={e => {
+            e.preventDefault()
+            const fd = new FormData(e.target)
+            updateFee.mutate({
+              id: modalEditFee.id,
+              data: {
+                total_amount: +fd.get("total_amount"),
+                academic_year: fd.get("academic_year")
+              }
+            })
+          }} className="space-y-4">
+            <div className="p-4 rounded-lg bg-secondary/50">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Student</span>
+                <span className="font-semibold text-foreground">{modalEditFee.student_name}</span>
+              </div>
+              <div className="flex justify-between text-sm mt-1">
+                <span className="text-muted-foreground">Already Paid</span>
+                <span className="font-semibold text-green-400">{formatCurrency(modalEditFee.paid_amount)}</span>
+              </div>
+            </div>
+            <FormField label="Total Fee Amount (₹) *">
+              <Input
+                name="total_amount"
+                type="number"
+                defaultValue={modalEditFee.total_amount}
+                min={modalEditFee.paid_amount}
+                placeholder="Total fee amount"
+                required
+              />
+            </FormField>
+            <FormField label="Academic Year *">
+              <Input name="academic_year" defaultValue={modalEditFee.academic_year} required />
+            </FormField>
+            <div className="flex gap-3">
+              <Button type="submit" disabled={updateFee.isPending} className="flex-1">
+                {updateFee.isPending ? "Saving..." : "Save Changes"}
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => setModalEditFee(null)}>Cancel</Button>
+            </div>
+          </form>
         )}
       </Modal>
     </div>

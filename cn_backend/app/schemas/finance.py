@@ -9,9 +9,19 @@ class FeeCreate(BaseModel):
     academic_year: str = "2024-25"
 
 
+class FeeUpdate(BaseModel):
+    total_amount: Optional[float] = None
+    academic_year: Optional[str] = None
+
+
 class FeePaymentCreate(BaseModel):
     fee_id: int
     amount: float
+    remarks: Optional[str] = None
+
+
+class FeePaymentUpdate(BaseModel):
+    amount: Optional[float] = None
     remarks: Optional[str] = None
 
 
@@ -45,6 +55,11 @@ class SalaryCreate(BaseModel):
     teacher_id: int
     monthly_amount: float
     academic_year: str = "2024-25"
+
+
+class SalaryUpdate(BaseModel):
+    monthly_amount: Optional[float] = None
+    academic_year: Optional[str] = None
 
 
 class SalaryPaymentCreate(BaseModel):

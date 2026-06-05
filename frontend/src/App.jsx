@@ -21,6 +21,7 @@ import SalaryManagement from "@/pages/admin/SalaryManagement"
 import Analytics from "@/pages/admin/Analytics"
 import CertificateGenerator from "@/pages/admin/CertificateGenerator"
 import Notifications from "@/pages/admin/Notifications"
+import Promotion from "@/pages/admin/Promotion"
 import Settings from "@/pages/admin/Settings"
 
 // Teacher Pages
@@ -71,6 +72,7 @@ export default function App() {
             <Route path="analytics" element={<Analytics />} />
             <Route path="certificates" element={<CertificateGenerator />} />
             <Route path="notifications" element={<Notifications />} />
+            <Route path="promotion" element={<Promotion />} />
             <Route path="settings" element={<Settings />} />
           </Route>
 

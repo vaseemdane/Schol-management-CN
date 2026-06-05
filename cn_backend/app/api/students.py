@@ -37,6 +37,7 @@ def list_students(
             id=s.id, user_id=s.user_id, name=s.name, roll_number=s.roll_number,
             class_id=s.class_id, section=s.section, parent_name=s.parent_name,
             parent_mobile=s.parent_mobile, address=s.address,
+            dob=s.dob,
             mobile=user.mobile if user else None,
             class_name=f"{cls.name} {cls.section}" if cls else None,
             medium=s.medium,
@@ -58,7 +59,7 @@ def get_my_profile(db: Session = Depends(get_db), current_user=Depends(get_curre
         "class_id": student.class_id, "section": student.section,
         "parent_name": student.parent_name, "parent_mobile": student.parent_mobile,
         "address": student.address, "mobile": current_user.mobile,
-        "medium": student.medium,
+        "medium": student.medium, "dob": student.dob,
     }
 
 
@@ -73,7 +74,7 @@ def get_student(student_id: int, db: Session = Depends(get_db), current_user=Dep
         id=student.id, user_id=student.user_id, name=student.name,
         roll_number=student.roll_number, class_id=student.class_id, section=student.section,
         parent_name=student.parent_name, parent_mobile=student.parent_mobile,
-        address=student.address, mobile=user.mobile if user else None,
+        address=student.address, dob=student.dob, mobile=user.mobile if user else None,
         class_name=f"{cls.name} {cls.section}" if cls else None,
         medium=student.medium,
         created_at=student.created_at,
@@ -103,7 +104,7 @@ def create_student(data: StudentCreate, db: Session = Depends(get_db), _=Depends
         user_id=user.id, name=data.name, roll_number=data.roll_number,
         class_id=data.class_id, section=data.section, parent_name=data.parent_name,
         parent_mobile=data.parent_mobile, address=data.address,
-        medium=data.medium,
+        medium=data.medium, dob=data.dob,
     )
     db.add(student)
     db.commit()
@@ -112,7 +113,7 @@ def create_student(data: StudentCreate, db: Session = Depends(get_db), _=Depends
         id=student.id, user_id=student.user_id, name=student.name,
         roll_number=student.roll_number, class_id=student.class_id, section=student.section,
         parent_name=student.parent_name, parent_mobile=student.parent_mobile,
-        address=student.address, mobile=data.mobile,
+        address=student.address, dob=student.dob, mobile=data.mobile,
         class_name=f"{cls.name} {cls.section}" if cls else None,
         medium=student.medium,
         created_at=student.created_at,
@@ -142,7 +143,7 @@ def update_student(student_id: int, data: StudentUpdate, db: Session = Depends(g
         id=student.id, user_id=student.user_id, name=student.name,
         roll_number=student.roll_number, class_id=student.class_id, section=student.section,
         parent_name=student.parent_name, parent_mobile=student.parent_mobile,
-        address=student.address, mobile=user.mobile if user else None,
+        address=student.address, dob=student.dob, mobile=user.mobile if user else None,
         class_name=f"{cls.name} {cls.section}" if cls else None,
         medium=student.medium,
         created_at=student.created_at,

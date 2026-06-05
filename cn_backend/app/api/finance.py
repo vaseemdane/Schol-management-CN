@@ -11,8 +11,8 @@ from app.models.salary import Salary, SalaryPayment
 from app.models.student import Student
 from app.models.teacher import Teacher
 from app.schemas.finance import (
-    FeeCreate, FeePaymentCreate, FeeOut, FeePaymentOut,
-    SalaryCreate, SalaryPaymentCreate, SalaryOut, SalaryPaymentOut,
+    FeeCreate, FeeUpdate, FeePaymentCreate, FeePaymentUpdate, FeeOut, FeePaymentOut,
+    SalaryCreate, SalaryUpdate, SalaryPaymentCreate, SalaryOut, SalaryPaymentOut,
 )
 from app.core.deps import get_current_user, require_admin
 
@@ -81,6 +81,36 @@ def create_fee(data: FeeCreate, db: Session = Depends(get_db), _=Depends(require
     )
 
 
+@router.put("/fees/{fee_id}", response_model=FeeOut)
+def update_fee(fee_id: int, data: FeeUpdate, db: Session = Depends(get_db), _=Depends(require_admin)):
+    fee = db.query(Fee).filter(Fee.id == fee_id).first()
+    if not fee:
+        raise HTTPException(status_code=404, detail="Fee record not found")
+
+    paid = sum(float(p.amount) for p in fee.payments)
+
+    if data.total_amount is not None:
+        if data.total_amount < paid:
+            raise HTTPException(status_code=400, detail=f"Total amount cannot be less than already paid amount ({paid})")
+        fee.total_amount = data.total_amount
+    if data.academic_year is not None:
+        fee.academic_year = data.academic_year
+
+    db.commit()
+    db.refresh(fee)
+    student = db.query(Student).filter(Student.id == fee.student_id).first()
+    remaining = float(fee.total_amount) - paid
+    return FeeOut(
+        id=fee.id, student_id=fee.student_id, total_amount=float(fee.total_amount),
+        academic_year=fee.academic_year, paid_amount=paid, remaining_amount=remaining,
+        student_name=student.name if student else None,
+        payments=[FeePaymentOut(
+            id=p.id, fee_id=p.fee_id, amount=float(p.amount),
+            payment_date=p.payment_date, receipt_number=p.receipt_number, remarks=p.remarks
+        ) for p in fee.payments],
+    )
+
+
 @router.post("/fees/payment", response_model=FeePaymentOut)
 def add_fee_payment(data: FeePaymentCreate, db: Session = Depends(get_db), _=Depends(require_admin)):
     fee = db.query(Fee).filter(Fee.id == data.fee_id).first()
@@ -102,6 +132,51 @@ def add_fee_payment(data: FeePaymentCreate, db: Session = Depends(get_db), _=Dep
         payment_date=payment.payment_date, receipt_number=payment.receipt_number,
         remarks=payment.remarks,
     )
+
+
+@router.put("/fees/payment/{payment_id}", response_model=FeePaymentOut)
+def update_fee_payment(
+    payment_id: int,
+    data: FeePaymentUpdate,
+    db: Session = Depends(get_db),
+    _=Depends(require_admin)
+):
+    payment = db.query(FeePayment).filter(FeePayment.id == payment_id).first()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment record not found")
+    
+    if data.amount is not None:
+        fee = db.query(Fee).filter(Fee.id == payment.fee_id).first()
+        if not fee:
+            raise HTTPException(status_code=404, detail="Fee record not found")
+        projected_paid = sum(float(p.amount) for p in fee.payments if p.id != payment_id) + data.amount
+        if projected_paid > float(fee.total_amount):
+            raise HTTPException(status_code=400, detail="Updated payment amount exceeds total fee amount")
+        payment.amount = data.amount
+        
+    if data.remarks is not None:
+        payment.remarks = data.remarks
+        
+    db.commit()
+    db.refresh(payment)
+    return FeePaymentOut(
+        id=payment.id, fee_id=payment.fee_id, amount=float(payment.amount),
+        payment_date=payment.payment_date, receipt_number=payment.receipt_number, remarks=payment.remarks
+    )
+
+
+@router.delete("/fees/payment/{payment_id}")
+def delete_fee_payment(
+    payment_id: int,
+    db: Session = Depends(get_db),
+    _=Depends(require_admin)
+):
+    payment = db.query(FeePayment).filter(FeePayment.id == payment_id).first()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment record not found")
+    db.delete(payment)
+    db.commit()
+    return {"message": "Payment record deleted successfully"}
 
 
 # ─── SALARY ────────────────────────────────────────────────────────────────────
@@ -163,6 +238,42 @@ def create_salary(data: SalaryCreate, db: Session = Depends(get_db), _=Depends(r
         pending_amount=float(salary.monthly_amount) * 12,
         teacher_name=teacher.name if teacher else None, payments=[],
     )
+
+
+@router.put("/salary/{salary_id}", response_model=SalaryOut)
+def update_salary(salary_id: int, data: SalaryUpdate, db: Session = Depends(get_db), _=Depends(require_admin)):
+    salary = db.query(Salary).filter(Salary.id == salary_id).first()
+    if not salary:
+        raise HTTPException(status_code=404, detail="Salary record not found")
+
+    total_paid = sum(float(p.amount) for p in salary.payments)
+
+    if data.monthly_amount is not None:
+        if data.monthly_amount * 12 < total_paid:
+            raise HTTPException(
+                status_code=400,
+                detail=f"New monthly amount would make annual salary less than already paid amount ({total_paid})"
+            )
+        salary.monthly_amount = data.monthly_amount
+    if data.academic_year is not None:
+        salary.academic_year = data.academic_year
+
+    db.commit()
+    db.refresh(salary)
+    
+    teacher = db.query(Teacher).filter(Teacher.id == salary.teacher_id).first()
+    pending = float(salary.monthly_amount) * 12 - total_paid
+    return SalaryOut(
+        id=salary.id, teacher_id=salary.teacher_id, monthly_amount=float(salary.monthly_amount),
+        academic_year=salary.academic_year, total_paid=total_paid,
+        pending_amount=max(0, pending),
+        teacher_name=teacher.name if teacher else None,
+        payments=[SalaryPaymentOut(
+            id=p.id, salary_id=p.salary_id, amount=float(p.amount),
+            month=p.month, payment_date=p.payment_date, receipt_number=p.receipt_number,
+        ) for p in salary.payments],
+    )
+
 
 
 @router.post("/salary/payment", response_model=SalaryPaymentOut)

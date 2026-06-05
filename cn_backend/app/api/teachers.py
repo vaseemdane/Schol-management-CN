@@ -113,6 +113,10 @@ def update_teacher(teacher_id: int, data: TeacherUpdate, db: Session = Depends(g
         teacher.assigned_classes = json.dumps(data.assigned_classes)
     if data.assigned_subjects is not None:
         teacher.assigned_subjects = json.dumps(data.assigned_subjects)
+    if data.password is not None and data.password != "":
+        user = db.query(User).filter(User.id == teacher.user_id).first()
+        if user:
+            user.password_hash = get_password_hash(data.password)
 
     db.commit()
     db.refresh(teacher)

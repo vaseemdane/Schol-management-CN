@@ -8,6 +8,10 @@ class CertificateCreate(BaseModel):
     certificate_type: str  # bonafide, study, transfer
 
 
+class CertificateUpdate(BaseModel):
+    content: str
+
+
 class CertificateOut(BaseModel):
     id: int
     student_id: int

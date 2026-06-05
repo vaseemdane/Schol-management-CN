@@ -46,6 +46,11 @@ function TeacherForm({ initial, classes, onSubmit, onClose, loading }) {
         <FormField label="Monthly Salary (₹)">
           <Input type="number" value={form.monthly_salary} onChange={e => set("monthly_salary", e.target.value)} placeholder="e.g. 30000" />
         </FormField>
+        {initial && (
+          <FormField label="New Password (leave blank to keep current)">
+            <Input type="password" value={form.password || ""} onChange={e => set("password", e.target.value)} placeholder="Enter new password" />
+          </FormField>
+        )}
       </div>
       <div className="flex gap-3 pt-2">
         <Button type="submit" disabled={loading} className="flex-1">{loading ? "Saving..." : "Save Teacher"}</Button>

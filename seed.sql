@@ -40,8 +40,8 @@ INSERT INTO subjects (id, name, class_id, created_at) VALUES
 SELECT setval('subjects_id_seq', COALESCE((SELECT MAX(id)+1 FROM subjects), 1), false);
 
 -- 5. Insert Students
-INSERT INTO students (id, user_id, name, roll_number, class_id, section, parent_name, parent_mobile, address, medium, created_at, updated_at) VALUES
-(1, 3, 'John Smith', '10A01', 1, 'A', 'Robert Smith', '9000000004', '123 Main St, Springfield', 'English', NOW(), NOW());
+INSERT INTO students (id, user_id, name, roll_number, class_id, section, parent_name, parent_mobile, address, medium, dob, created_at, updated_at) VALUES
+(1, 3, 'John Smith', '10A01', 1, 'A', 'Robert Smith', '9000000004', '123 Main St, Springfield', 'English', '2010-05-15', NOW(), NOW());
 
 -- Update students sequence
 SELECT setval('students_id_seq', COALESCE((SELECT MAX(id)+1 FROM students), 1), false);

@@ -18,6 +18,7 @@ from app.api.attendance import router as attendance_router
 from app.api.exams import router as exams_router
 from app.api.finance import router as finance_router
 from app.api.analytics import router as analytics_router
+from app.api.promotion import router as promotion_router
 from app.api.misc import (
     certificates_router, notifications_router,
     classes_router, subjects_router,
@@ -61,6 +62,7 @@ app.include_router(attendance_router, prefix=API_PREFIX)
 app.include_router(exams_router, prefix=API_PREFIX)
 app.include_router(finance_router, prefix=API_PREFIX)
 app.include_router(analytics_router, prefix=API_PREFIX)
+app.include_router(promotion_router, prefix=API_PREFIX)
 app.include_router(certificates_router, prefix=API_PREFIX)
 app.include_router(notifications_router, prefix=API_PREFIX)
 app.include_router(classes_router, prefix=API_PREFIX)

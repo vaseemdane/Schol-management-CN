@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, ARRAY
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, ARRAY, Date
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.db.base import Base
@@ -18,6 +18,9 @@ class Student(Base):
     address = Column(Text, nullable=True)
     photo_url = Column(String(255), nullable=True)
     medium = Column(String(20), nullable=False, default="English")
+    dob = Column(Date, nullable=True)
+    academic_year = Column(String(20), nullable=False, default="2026-27")
+    status = Column(String(20), nullable=False, default="active")
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

@@ -33,8 +33,11 @@ def check_and_seed_admin():
         with engine.begin() as conn:
             conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS security_question VARCHAR(255);"))
             conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS security_answer VARCHAR(255);"))
+            conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS dob DATE;"))
+            conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS academic_year VARCHAR(20) NOT NULL DEFAULT '2026-27';"))
+            conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'active';"))
     except Exception as e:
-        print(f"Error altering table users: {e}")
+        print(f"Error altering tables: {e}")
 
     db = SessionLocal()
     try:

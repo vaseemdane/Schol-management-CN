@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import date, datetime
 
 
 class StudentCreate(BaseModel):
@@ -14,6 +14,7 @@ class StudentCreate(BaseModel):
     parent_name: Optional[str] = None
     parent_mobile: Optional[str] = None
     address: Optional[str] = None
+    dob: Optional[date] = None
 
 
 class StudentUpdate(BaseModel):
@@ -25,6 +26,7 @@ class StudentUpdate(BaseModel):
     parent_name: Optional[str] = None
     parent_mobile: Optional[str] = None
     address: Optional[str] = None
+    dob: Optional[date] = None
 
 
 class StudentOut(BaseModel):
@@ -38,6 +40,7 @@ class StudentOut(BaseModel):
     parent_name: Optional[str]
     parent_mobile: Optional[str]
     address: Optional[str]
+    dob: Optional[date] = None
     mobile: Optional[str] = None
     class_name: Optional[str] = None
     created_at: datetime
