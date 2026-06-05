@@ -41,7 +41,7 @@ function StudentForm({ initial, classes, onSubmit, onClose, loading }) {
         <FormField label="Medium *">
           <Select value={form.medium} onChange={e => { set("medium", e.target.value); set("class_id", "") }} required>
             <option value="English">English Medium</option>
-            <option value="Kannada">🏫 Kannada Medium</option>
+            <option value="Kannada">Kannada Medium</option>
           </Select>
         </FormField>
         <FormField label="Class *">
@@ -121,7 +121,7 @@ export default function StudentsManagement() {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            {m === "All" ? "All Mediums" : m === "English" ? "English Medium" : "🏫 Kannada"}
+            {m === "All" ? "All Mediums" : m === "English" ? "English Medium" : "Kannada Medium"}
           </button>
         ))}
       </div>
@@ -162,7 +162,7 @@ export default function StudentsManagement() {
               <TableCell>{s.class_name || "—"}</TableCell>
               <TableCell>
                 <Badge variant={s.medium === "Kannada" ? "purple" : "info"}>
-                  {s.medium === "Kannada" ? "🏫 Kannada" : "English Medium"}
+                  {s.medium === "Kannada" ? "Kannada Medium" : "English Medium"}
                 </Badge>
               </TableCell>
               <TableCell className="text-muted-foreground">{s.mobile || "—"}</TableCell>

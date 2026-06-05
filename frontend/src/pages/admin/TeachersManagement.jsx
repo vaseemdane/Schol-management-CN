@@ -40,7 +40,7 @@ function TeacherForm({ initial, classes, onSubmit, onClose, loading }) {
         <FormField label="Medium *">
           <Select value={form.medium} onChange={e => set("medium", e.target.value)} required>
             <option value="English">English Medium</option>
-            <option value="Kannada">🏫 Kannada Medium</option>
+            <option value="Kannada">Kannada Medium</option>
           </Select>
         </FormField>
         <FormField label="Monthly Salary (₹)">
@@ -102,7 +102,7 @@ export default function TeachersManagement() {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            {m === "All" ? "All Mediums" : m === "English" ? "English Medium" : "🏫 Kannada"}
+            {m === "All" ? "All Mediums" : m === "English" ? "English Medium" : "Kannada Medium"}
           </button>
         ))}
       </div>
@@ -135,7 +135,7 @@ export default function TeachersManagement() {
               <TableCell className="text-muted-foreground">{t.mobile}</TableCell>
               <TableCell>
                 <Badge variant={t.medium === "Kannada" ? "purple" : "info"}>
-                  {t.medium === "Kannada" ? "🏫 Kannada" : "English Medium"}
+                  {t.medium === "Kannada" ? "Kannada Medium" : "English Medium"}
                 </Badge>
               </TableCell>
               <TableCell><Badge variant="purple">{t.qualification || "—"}</Badge></TableCell>

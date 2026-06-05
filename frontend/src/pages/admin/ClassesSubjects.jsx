@@ -7,7 +7,7 @@ import { Input, FormField, Select } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Modal } from "@/components/ui/modal"
 import { LoadingPage, EmptyState } from "@/components/ui/loading"
-import { Plus, BookOpen, Layers } from "lucide-react"
+import { Plus, BookOpen, Layers, Trash2 } from "lucide-react"
 
 export default function ClassesSubjects() {
   const qc = useQueryClient()
@@ -26,6 +26,26 @@ export default function ClassesSubjects() {
 
   const createClass = useMutation({ mutationFn: classesApi.create, onSuccess: () => { qc.invalidateQueries(["classes"]); setModalClass(false) } })
   const createSubject = useMutation({ mutationFn: subjectsApi.create, onSuccess: () => { qc.invalidateQueries(["subjects-all"]); setModalSubject(false) } })
+
+  const deleteClass = useMutation({
+    mutationFn: classesApi.delete,
+    onSuccess: () => {
+      qc.invalidateQueries(["classes"])
+    },
+    onError: (err) => {
+      alert(err.response?.data?.detail || "Failed to delete class.")
+    }
+  })
+
+  const deleteSubject = useMutation({
+    mutationFn: subjectsApi.delete,
+    onSuccess: () => {
+      qc.invalidateQueries(["subjects-all"])
+    },
+    onError: (err) => {
+      alert(err.response?.data?.detail || "Failed to delete subject.")
+    }
+  })
 
   if (loadC || loadS) return <LoadingPage />
 
@@ -62,10 +82,11 @@ export default function ClassesSubjects() {
               <TableHead>Section</TableHead>
               <TableHead>Medium</TableHead>
               <TableHead>Class Teacher</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {classes.length === 0 && <TableRow><td colSpan={5} className="py-12"><EmptyState title="No classes added" icon={BookOpen} /></td></TableRow>}
+            {classes.length === 0 && <TableRow><td colSpan={6} className="py-12"><EmptyState title="No classes added" icon={BookOpen} /></td></TableRow>}
             {classes.map((c, i) => {
               const teacher = teachers.find(t => t.id === c.teacher_id)
               return (
@@ -75,10 +96,23 @@ export default function ClassesSubjects() {
                   <TableCell><Badge variant="info">{c.section}</Badge></TableCell>
                   <TableCell>
                     <Badge variant={c.medium === "Kannada" ? "purple" : "default"}>
-                      {c.medium === "Kannada" ? "🏫 Kannada" : "English Medium"}
+                      {c.medium === "Kannada" ? "Kannada Medium" : "English Medium"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{teacher?.name || "—"}</TableCell>
+                  <TableCell>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Delete class ${c.name} - ${c.section}?`)) {
+                          deleteClass.mutate(c.id)
+                        }
+                      }}
+                      className="btn-icon text-red-400 hover:bg-red-500/10"
+                      disabled={deleteClass.isPending}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </TableCell>
                 </TableRow>
               )
             })}
@@ -93,10 +127,11 @@ export default function ClassesSubjects() {
               <TableHead>#</TableHead>
               <TableHead>Subject Name</TableHead>
               <TableHead>Class</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {subjects.length === 0 && <TableRow><td colSpan={3} className="py-12"><EmptyState title="No subjects added" icon={Layers} /></td></TableRow>}
+            {subjects.length === 0 && <TableRow><td colSpan={4} className="py-12"><EmptyState title="No subjects added" icon={Layers} /></td></TableRow>}
             {subjects.map((s, i) => {
               const cls = classes.find(c => c.id === s.class_id)
               return (
@@ -104,6 +139,19 @@ export default function ClassesSubjects() {
                   <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                   <TableCell className="font-medium text-foreground">{s.name}</TableCell>
                   <TableCell className="text-muted-foreground">{cls ? `${cls.name} ${cls.section}` : "—"}</TableCell>
+                  <TableCell>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Delete subject ${s.name}?`)) {
+                          deleteSubject.mutate(s.id)
+                        }
+                      }}
+                      className="btn-icon text-red-400 hover:bg-red-500/10"
+                      disabled={deleteSubject.isPending}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </TableCell>
                 </TableRow>
               )
             })}
@@ -119,7 +167,7 @@ export default function ClassesSubjects() {
           <FormField label="Medium *">
             <Select value={classMedium} onChange={e => { setClassMedium(e.target.value); setClassTeacherId("") }} required>
               <option value="English">English Medium</option>
-              <option value="Kannada">🏫 Kannada Medium</option>
+              <option value="Kannada">Kannada Medium</option>
             </Select>
           </FormField>
           <FormField label="Class Teacher">

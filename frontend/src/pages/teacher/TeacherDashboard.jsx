@@ -33,7 +33,7 @@ export default function TeacherDashboard() {
             Welcome, {profile?.name || "Teacher"}! 👋
           </h1>
           <p className="section-subtitle">
-            {profile?.qualification} · Medium: <span className="text-foreground font-semibold">{profile?.medium === "Kannada" ? "🏫 Kannada" : "English Medium"}</span> | C.N.Mugalkod Schools
+            {profile?.qualification} · Medium: <span className="text-foreground font-semibold">{profile?.medium === "Kannada" ? "Kannada Medium" : "English Medium"}</span> | C.N.Mugalkod Schools
           </p>
         </div>
       </div>

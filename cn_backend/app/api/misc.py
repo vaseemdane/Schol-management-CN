@@ -132,6 +132,48 @@ def create_class(data: ClassCreate, db: Session = Depends(get_db), _=Depends(req
     return ClassOut(id=cls.id, name=cls.name, section=cls.section, medium=cls.medium, teacher_id=cls.teacher_id)
 
 
+@classes_router.delete("/{class_id}")
+def delete_class(class_id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
+    cls = db.query(Class).filter(Class.id == class_id).first()
+    if not cls:
+        raise HTTPException(status_code=404, detail="Class not found")
+    
+    # Check dependencies before deleting
+    student_count = db.query(Student).filter(Student.class_id == class_id).count()
+    if student_count > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete class because it has {student_count} registered student(s)."
+        )
+        
+    subject_count = db.query(Subject).filter(Subject.class_id == class_id).count()
+    if subject_count > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete class because it has {subject_count} subject(s) assigned. Please delete the subjects first."
+        )
+
+    from app.models.exam import Exam
+    exam_count = db.query(Exam).filter(Exam.class_id == class_id).count()
+    if exam_count > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete class because it has {exam_count} exam record(s) associated with it."
+        )
+
+    from app.models.attendance import Attendance
+    att_count = db.query(Attendance).filter(Attendance.class_id == class_id).count()
+    if att_count > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete class because it has {att_count} attendance record(s) associated with it."
+        )
+
+    db.delete(cls)
+    db.commit()
+    return {"message": "Class deleted successfully"}
+
+
 # ─── SUBJECTS ─────────────────────────────────────────────────────────────────
 
 @subjects_router.get("", response_model=List[SubjectOut])
@@ -150,3 +192,22 @@ def create_subject(data: SubjectCreate, db: Session = Depends(get_db), _=Depends
     db.commit()
     db.refresh(subject)
     return SubjectOut(id=subject.id, name=subject.name, class_id=subject.class_id)
+
+
+@subjects_router.delete("/{subject_id}")
+def delete_subject(subject_id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
+    subject = db.query(Subject).filter(Subject.id == subject_id).first()
+    if not subject:
+        raise HTTPException(status_code=404, detail="Subject not found")
+
+    from app.models.exam import Exam
+    exam_count = db.query(Exam).filter(Exam.subject_id == subject_id).count()
+    if exam_count > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete subject because it has {exam_count} exam(s) associated with it."
+        )
+
+    db.delete(subject)
+    db.commit()
+    return {"message": "Subject deleted successfully"}

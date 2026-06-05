@@ -63,12 +63,14 @@ export const teachersApi = {
 export const classesApi = {
   list: (params) => api.get('/classes', { params }),
   create: (data) => api.post('/classes', data),
+  delete: (id) => api.delete(`/classes/${id}`),
 }
 
 // Subjects
 export const subjectsApi = {
   list: (classId) => api.get('/subjects', { params: { class_id: classId } }),
   create: (data) => api.post('/subjects', data),
+  delete: (id) => api.delete(`/subjects/${id}`),
 }
 
 // Attendance

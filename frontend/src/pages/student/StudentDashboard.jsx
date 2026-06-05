@@ -50,7 +50,7 @@ export default function StudentDashboard() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">{profile?.name}</h1>
           <p className="text-muted-foreground">Roll No: <span className="text-foreground font-medium">{profile?.roll_number}</span></p>
-          <p className="text-muted-foreground">Class: <span className="text-foreground font-medium">{profile?.class_name}</span> · Section: <span className="text-foreground font-medium">{profile?.section}</span> · Medium: <span className="text-foreground font-medium">{profile?.medium === "Kannada" ? "🏫 Kannada" : "English Medium"}</span></p>
+          <p className="text-muted-foreground">Class: <span className="text-foreground font-medium">{profile?.class_name}</span> · Section: <span className="text-foreground font-medium">{profile?.section}</span> · Medium: <span className="text-foreground font-medium">{profile?.medium === "Kannada" ? "Kannada Medium" : "English Medium"}</span></p>
         </div>
         <div className="ml-auto text-right hidden sm:block">
           <p className="text-xs text-muted-foreground">C.N.Mugalkod Schools</p>
